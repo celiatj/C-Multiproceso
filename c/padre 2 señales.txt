@@ -1,0 +1,43 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <signal.h>
+#include <sys/wait.h>
+
+void manejador2() {
+  printf("Hijo escondete\n");
+}
+
+void manejador() {
+  printf("Hijo sal!...\n");
+}
+
+int main() {
+  pid_t pid;
+  pid = fork();
+
+  switch (pid) {
+    case -1:
+      printf("Error al crear el proceso hijo...\n");
+      exit(-1);
+    case 0:
+      signal(SIGUSR1, manejador);
+      signal(SIGUSR2, manejador2);
+      pause();
+      printf("Me escondo\n");
+      pause();
+      printf("Salgo\n");
+      break;
+    default:
+      sleep(2);
+      kill(pid, SIGUSR2);
+      sleep(2);
+      kill(pid, SIGUSR1);
+      wait(NULL);
+      printf("Ha sido muy divertido\n");
+      break;
+  }
+
+  return 0;
+}

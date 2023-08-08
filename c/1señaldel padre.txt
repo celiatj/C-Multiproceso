@@ -1,0 +1,42 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <signal.h>
+void manejador(){
+  printf("Hijo sal...\n");
+}
+
+
+void main()
+{
+    pid_t pid;
+
+    pid = fork();
+
+    if (pid == -1){	//Ha ocurrido un error
+		printf("No se ha podido crear el proceso hijo...\n");
+		exit(-1);
+	}
+    else if (pid == 0)
+    {
+         signal(SIGUSR1, manejador);
+          printf("Hijo: Comenzando...\n");
+            pause(); // Esperar señales del padre
+       printf("Hijo: Ya he terminado.\n");
+    }else
+    {
+        // Proceso padre
+        printf("Padre: Esperando 2 segundos...\n");
+        sleep(2); // Esperar 2 segundos
+
+        printf("Padre: Enviando señal al hijo.\n");
+        kill(pid, SIGUSR1); // Enviar señal al hijo
+
+        wait(NULL); // Esperar a que el hijo termine
+
+        printf("Padre: Ha sido muy divertido.\n");
+    }
+
+}
